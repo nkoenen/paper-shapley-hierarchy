@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+lightning_logs/
+*.tmp
+.DS_Store
+.venv/
+.uv-cache/
+
+paper_draft.pdf
+plots/*
+plan.md
+SUMMARY.md
+results/*
+moldels/*
+old/*
+
+# Regenerable trajectory / sample caches (5.3 + 5.4)
+# These are reproduced deterministically by re-running the corresponding
+# notebook; checkpoint hashes in *_meta.json validate the cache on reload.
+results/53/*/samples_seed*.npy
+results/53/*/raw_seed*.npy
+results/54/trajectories_*.npy
