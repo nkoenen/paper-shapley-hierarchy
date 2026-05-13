@@ -21,10 +21,10 @@ multivariate output $\mathbf{Y} = (Y_1, \dots, Y_T)$:
 
 | Level | Value function                              | Captures                                            |
 |-------|---------------------------------------------|-----------------------------------------------------|
-| L1/marginal    | $H(Y_t \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\bar{S}}))$   | marginal entropy at each output component $t$       |
-| L2/sequential    | $H(Y_t \mid \mathbf{Y}_{<t}, \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\bar{S}}))$          | sequential conditional entropy (chain-rule step)    |
-| L3/joint    | $H(\mathbf{Y} \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\bar{S}}))$           | joint entropy over the full output vector           |
-| Cross/TC | $\text{TC}(\mathbf{Y} \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\bar{S}}))$   | total-correlation / cross-component decomposition   |
+| L1/marginal    | $H(Y_t \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\overline{S}}))$   | marginal entropy at each output component $t$       |
+| L2/sequential    | $H(Y_t \mid \mathbf{Y}_{\lt t}, \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\overline{S}}))$          | sequential conditional entropy (chain-rule step)    |
+| L3/joint    | $H(\mathbf{Y} \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\overline{S}}))$           | joint entropy over the full output vector           |
+| Cross/TC | $\text{TC}(\mathbf{Y} \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\overline{S}}))$   | total-correlation / cross-component decomposition   |
 
 By construction **L3 = $\sum_t$ L2** (Proposition 1), and the
 cross-component attribution recovers the deviation of the local total
@@ -74,3 +74,23 @@ The core library lives in `entropy_shapley/`, including the hierarchy games (`ga
   CC BY 4.0.
 
 Both files are bundled in `datasets/` for offline reproducibility.
+
+## 🚲 A real-world example: Bike Sharing
+
+What the hierarchy looks like on a real distributional regression model
+(NGBoost with multivariate Gaussian output) for two contrasting forecast
+origins of the UCI Bike Sharing dataset — a typical *workday* (top row, low
+uncertainty, bimodal commute profile) versus a *weekend* (bottom row, high
+uncertainty):
+
+<p align="center">
+  <img src="plots/5_2/bikesharing_hierarchy.png" width="900"/>
+  <br/>
+  <sub><b>Figure 2</b> — left: predicted mean and uncertainty bands;
+  centre: Level 1 (marginal) and Level 2 (sequential) attributions
+  per feature × two-hour block; right: Level 3 (joint) and cross-component
+  attributions. <code>Temp 6am</code> on the weekend instance is a striking
+  example: its joint contribution is negative (it *reduces* overall
+  uncertainty), but its cross contribution is highly positive — i.e. it
+  simultaneously tightens the dependence between rental blocks.</sub>
+</p>
