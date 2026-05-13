@@ -1,8 +1,7 @@
 # A Hierarchy of Entropy-Shapley Games for Multivariate Predictive Uncertainty
 
-Reproduction code for the paper *A Hierarchy of Entropy-Shapley Games for
-Multivariate Predictive Uncertainty*. Each notebook/script reproduces one
-figure in Section 5 (or Appendix D) of the paper.
+Reproduction code for the paper *"A Hierarchy of Entropy-Shapley Games for
+Multivariate Predictive Uncertainty"*.
 
 <p align="center">
   <img src="plots/5_1/synthetic_hierarchy.png" width="780"/>
