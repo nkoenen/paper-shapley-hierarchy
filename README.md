@@ -21,7 +21,7 @@ multivariate output $\mathbf{Y} = (Y_1, \dots, Y_T)$:
 
 | Level | Value function                              | Captures                                            |
 |-------|---------------------------------------------|-----------------------------------------------------|
-| L1/marginal    | $H(Y_t \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\overline{S}}))$   | marginal entropy at each output component $t$       |
+| L1/marginal    | $H(Y_t \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{-S}))$   | marginal entropy at each output component $t$       |
 | L2/sequential    | $H(Y_t \mid \mathbf{Y}_{\lt t}, \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\overline{S}}))$          | sequential conditional entropy (chain-rule step)    |
 | L3/joint    | $H(\mathbf{Y} \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\overline{S}}))$           | joint entropy over the full output vector           |
 | Cross/TC | $\text{TC}(\mathbf{Y} \mid \mathbf{X} = (\mathbf{x}_S, \mathbf{X}_{\overline{S}}))$   | total-correlation / cross-component decomposition   |
