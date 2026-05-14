@@ -60,7 +60,7 @@ cheap; runtimes below are for cold first runs on a single GPU.
   Run `python notebooks/4_main_comparison.py` (~2 h). [Chronos-T5](https://huggingface.co/amazon/chronos-t5-base) is loaded from Hugging Face on first call.
 
 - 🔬 **Figure D.4** — *DeepAR estimator validation (App. D.3.1).*
-  Run `python notebooks/5_deepar_validation.py` (~3 h).
+  Run `python notebooks/5_deepar_validation.py` (~16 h).
 
 The core library lives in `entropy_shapley/`, including the hierarchy games (`game.py`), the imputer classes (`imputer.py`), sample-based estimators (`estimators.py`) and supporting utilities for the electricity-dataset pipeline. Open any of thenotebooks/scripts above to see which library functions feed into which figure.
 
