@@ -98,11 +98,14 @@ PLAYER_NAMES = ["hour", "weekday", "month", "recent", "middle", "old"]
 
 # Validation budget (tune for runtime ↔ MC noise)
 N_INSTANCES   = 100                              # forecast origins evaluated
-N_BACKGROUNDS = 25                               # background paths per instance
+N_BACKGROUNDS = 25                              # background paths per instance
 N_GRID        = [50, 100, 250, 500, 1000, 2000]  # trajectory budgets swept
 BATCH_I       = 10                               # instances per inner-loop batch (RAM-bound)
 SEED_BG       = 0                                # seed for background selection and trajectory sampling
 N_PARALLEL    = 128                              # parallel workers for estimator eval — adjust to your machine
+N_MIXTURE     = 250                              # reference L2: sub-sample the N_max trajectory parameters
+                                                  # used for averaging (Jensen bias O(1/N_MIXTURE),
+                                                  # largely cancels under Shapley aggregation)
 
 # Distributions and estimators under test
 DISTR = ("normal", "studentt", "lognormal")
@@ -267,7 +270,7 @@ for dist in DISTR:
             ref_batch = compute_reference(
                 cache['samples'], cache['raw'],
                 distribution=dist, results_dir=results_dir, seed=SEED,
-                save=False,
+                save=False, n_mixture=N_MIXTURE, n_jobs=N_PARALLEL,
             )
             est_batch = evaluate_estimators(
                 cache['samples'], cache['raw'],

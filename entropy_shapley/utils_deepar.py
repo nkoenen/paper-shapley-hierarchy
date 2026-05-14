@@ -39,6 +39,7 @@ import pandas as pd
 import numpy as np
 import json
 import torch
+from joblib import Parallel, delayed
 
 from .utils_datasets import (
     build_feature_groups,
@@ -286,8 +287,18 @@ def compute_reference(
     results_dir: str = "../results/53",
     seed: int = 0,
     save: bool = True,
+    n_mixture: int | None = None,
+    n_jobs: int = 1,
 ) -> dict:
     """Density-aware DeepAR reference value functions, averaged over K backgrounds.
+
+    Parameters
+    ----------
+    n_mixture : int, optional
+        Sub-sample the first ``n_mixture`` of the ``N_max`` trajectory-conditioned
+        parameter sets before averaging the per-step entropy (speedup ~N_max /
+        n_mixture). Bias is O(1/n_mixture) on H(Y_t | Y_<t, x) and largely
+        cancels under Shapley aggregation. Default ``None`` = all paths.
 
     Returns
     -------
@@ -309,12 +320,30 @@ def compute_reference(
     )
 
     I, n_coal, K = samples.shape[:3]
+    N_max = samples.shape[3]
+    M_eff = N_max if (n_mixture is None or n_mixture >= N_max) else int(n_mixture)
     # Flatten (I, n_coal, K) → batch axis n=I*n_coal*K so the existing
-    # _compute_L2 (designed for n×M×T inputs) just works.
-    s_flat = samples.reshape(I * n_coal * K, samples.shape[3], samples.shape[4])
-    r_flat = raw    .reshape(I * n_coal * K, raw.shape[3], raw.shape[4], raw.shape[5])
+    # _compute_L2 (designed for n×M×T inputs) just works. Sub-sample the
+    # M axis to M_eff if requested (Jensen bias on H(Y_t | Y_<t, x) is O(1/M_eff)
+    # and largely cancels in the Shapley contrast).
+    s_flat = samples[..., :M_eff, :].reshape(I * n_coal * K, M_eff, samples.shape[4])
+    r_flat = raw    [..., :M_eff, :, :].reshape(I * n_coal * K, M_eff, raw.shape[4], raw.shape[5])
 
-    L2_flat = stub._compute_L2((s_flat, r_flat))                     # (I*n_coal*K, T)
+    # _compute_L2 is a single big scipy/numpy ufunc call — for Student-T the
+    # gammaln/digamma work on (n_rows × M_eff × T) is single-threaded by
+    # default. Chunk-parallelise across rows when n_jobs > 1, same pattern as
+    # `evaluate_on_cached_samples` in estimators.py.
+    n = s_flat.shape[0]
+    if n_jobs == 1:
+        L2_flat = stub._compute_L2((s_flat, r_flat))                 # (I*n_coal*K, T)
+    else:
+        bounds = np.linspace(0, n, n_jobs + 1, dtype=int)
+        L2_chunks = Parallel(n_jobs=n_jobs, backend="loky")(
+            delayed(stub._compute_L2)((s_flat[s:e], r_flat[s:e]))
+            for s, e in zip(bounds[:-1], bounds[1:])
+            if e > s
+        )
+        L2_flat = np.concatenate(L2_chunks, axis=0)
     L2 = L2_flat.reshape(I, n_coal, K, -1).mean(axis=2)              # (I, n_coal, T)
     # L3 via chain rule (Prop. 1) — equivalent to averaging L3_flat over K,
     # but avoids the extra _compute_L3 pass.
